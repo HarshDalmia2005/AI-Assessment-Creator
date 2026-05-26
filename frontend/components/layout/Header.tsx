@@ -2,14 +2,13 @@
 
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell, ArrowLeft, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Bell, ArrowLeft, ChevronDown, LayoutGrid, Menu } from 'lucide-react';
 import Image from 'next/image';
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Determine title based on pathname - Figma uses "Assignment" singular
   let title = "Assignment";
   if (pathname.includes('/create')) {
     title = "Assignment";
@@ -20,8 +19,9 @@ export function Header() {
   const showBackButton = pathname !== '/';
 
   return (
-    <header className="h-[60px] px-6 flex items-center justify-between shrink-0 z-10 w-full">
-      <div className="flex items-center gap-3">
+    <header className="h-[60px] px-4 md:px-6 flex items-center justify-between shrink-0 z-10 w-full">
+      {/* Desktop: back arrow + grid icon + title */}
+      <div className="hidden md:flex items-center gap-3">
         {showBackButton && (
           <button
             onClick={() => router.back()}
@@ -36,11 +36,19 @@ export function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-5">
+      {/* Mobile: VedaAI logo on left */}
+      <div className="flex md:hidden items-center gap-2">
+        <div className="rounded-full flex items-center justify-center">
+          <Image src="/logo 2 copy.png" alt="Logo" width={36} height={36} />
+        </div>
+        <span className="font-bold text-[20px] tracking-[-0.04em] text-[#303030]">VedaAI</span>
+      </div>
+
+      <div className="flex items-center gap-3 md:gap-5">
         {/* Bell icon */}
         <button className="relative bg-[#F6F6F6] p-2 rounded-full text-[#9CA3AF] hover:text-[#1A1A1A] transition-colors">
-          <Bell size={24} strokeWidth={1.8} />
-          <span className="absolute -top-0.5 -right-0.5 w-[6px] h-[6px] bg-[#F36B24] rounded-full"></span>
+          <Bell size={20} className="md:w-6 md:h-6" strokeWidth={1.8} />
+          <span className="absolute top-1 right-1 md:-top-0.5 md:-right-0.5 w-[6px] h-[6px] bg-[#F36B24] rounded-full"></span>
         </button>
 
         {/* User profile */}
@@ -48,9 +56,15 @@ export function Header() {
           <div className="w-[32px] h-[32px] rounded-full bg-[#F3F4F6] flex items-center justify-center overflow-hidden border border-[#E5E7EB]">
             <Image src="/P.jpg" alt="" width={32} height={32} />
           </div>
-          <span className="text-[16px] font-bricolage font-medium text-[#303030]">John Doe</span>
-          <ChevronDown size={20} className="text-[#303030]" strokeWidth={2} />
+          {/* Name only on desktop */}
+          <span className="hidden md:inline text-[16px] font-bricolage font-medium text-[#303030]">John Doe</span>
+          <ChevronDown size={20} className="hidden md:block text-[#303030]" strokeWidth={2} />
         </div>
+
+        {/* Hamburger menu - mobile only */}
+        <button className="md:hidden text-[#303030] p-1">
+          <Menu size={24} strokeWidth={2} />
+        </button>
       </div>
     </header>
   );
