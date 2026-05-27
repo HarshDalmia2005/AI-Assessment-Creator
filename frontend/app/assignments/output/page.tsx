@@ -3,67 +3,43 @@
 import React, { useRef } from "react";
 import { Download } from "lucide-react";
 
-const MOCK_QUESTIONS = [
+const MOCK_SECTIONS = [
   {
-    id: 1,
-    text: "Define electroplating. Explain its purpose.",
-    marks: 2,
-    difficulty: "Easy",
-  },
-  {
-    id: 2,
-    text: "What is the role of a conductor in the process of electrolysis?",
-    marks: 2,
-    difficulty: "Moderate",
-  },
-  {
-    id: 3,
-    text: "Why does a solution of copper sulfate conduct electricity?",
-    marks: 2,
-    difficulty: "Easy",
-  },
-  {
-    id: 4,
-    text: "Describe one example of the chemical effect of electric current in daily life.",
-    marks: 2,
-    difficulty: "Moderate",
-  },
-  {
-    id: 5,
-    text: "Explain why electric current is said to have chemical effects.",
-    marks: 2,
-    difficulty: "Moderate",
-  },
-  {
-    id: 6,
-    text: "How is sodium hydroxide prepared during the electrolysis of brine? Write the chemical reaction involved.",
-    marks: 2,
-    difficulty: "Challenging",
-  },
-  {
-    id: 7,
-    text: "What happens at the cathode and anode during the electrolysis of water? Name the gases evolved.",
-    marks: 2,
-    difficulty: "Challenging",
-  },
-  {
-    id: 8,
-    text: "Mention the type of current used in electroplating and justify why it is used.",
-    marks: 2,
-    difficulty: "Easy",
-  },
-  {
-    id: 9,
-    text: "What is the importance of electric current in the field of metallurgy?",
-    marks: 2,
-    difficulty: "Moderate",
-  },
-  {
-    id: 10,
-    text: "Explain with a chemical equation how copper is deposited during the electroplating of an object.",
-    marks: 2,
-    difficulty: "Challenging",
-  },
+    sectionTitle: "Section A: Short Answer Questions",
+    instructions: "Attempt all questions. Each question carries 2 marks",
+    questions: [
+      {
+        id: 1,
+        text: "Define electroplating. Explain its purpose.",
+        marks: 2,
+        difficulty: "Easy",
+      },
+      {
+        id: 2,
+        text: "What is the role of a conductor in the process of electrolysis?",
+        marks: 2,
+        difficulty: "Moderate",
+      },
+      {
+        id: 3,
+        text: "Why does a solution of copper sulfate conduct electricity?",
+        marks: 2,
+        difficulty: "Easy",
+      },
+      {
+        id: 4,
+        text: "Describe one example of the chemical effect of electric current in daily life.",
+        marks: 2,
+        difficulty: "Moderate",
+      },
+      {
+        id: 5,
+        text: "Explain why electric current is said to have chemical effects.",
+        marks: 2,
+        difficulty: "Moderate",
+      },
+    ]
+  }
 ];
 
 const MOCK_ANSWERS = [
@@ -87,10 +63,12 @@ import { useAssessmentStore } from "@/store/useAssessmentStore";
 function OutputContent() {
   const searchParams = useSearchParams();
   const urlId = searchParams.get("id");
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, title: string, message: string} | null>(null);
   const {
     assignmentId,
     status,
     generatedPaper,
+    assignmentMeta,
     fetchAssignment,
     setAssignmentData,
   } = useAssessmentStore();
@@ -134,7 +112,11 @@ function OutputContent() {
 
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
-      alert("Please allow pop-ups to print the PDF.");
+      setModalConfig({
+        isOpen: true,
+        title: "Pop-up Blocked",
+        message: "Your browser blocked the print window. Please allow pop-ups for this site to download the PDF.",
+      });
       return;
     }
 
@@ -198,7 +180,29 @@ function OutputContent() {
     );
   }
 
-  const questions = generatedPaper?.questions || MOCK_QUESTIONS;
+  if (status === "failed") {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-[#5E5E5E] rounded-none md:rounded-[24px]">
+        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
+          <div className="w-8 h-8 text-red-500 text-[24px] font-bold text-center leading-[32px]">!</div>
+        </div>
+        <p className="text-white font-bold text-[18px] md:text-[22px] mb-2">
+          Generation Failed
+        </p>
+        <p className="text-white/70 text-[13px] md:text-[15px] text-center max-w-sm px-6 mb-6 leading-relaxed">
+          The AI model is currently experiencing high demand or encountered an error. Please try generating the assignment again.
+        </p>
+        <button 
+          onClick={() => window.location.href = '/assignments/create'}
+          className="bg-white text-[#303030] px-6 py-2.5 rounded-full font-bold text-[14px] hover:bg-gray-100 transition-colors shadow-sm"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  const sections = generatedPaper?.sections || MOCK_SECTIONS;
   const answers = generatedPaper?.answers || MOCK_ANSWERS;
 
   return (
@@ -213,10 +217,8 @@ function OutputContent() {
           </p>
         </div>
 
-        {/* Desktop: text directly on background */}
         <p className="hidden md:block text-[14px] font-bold leading-relaxed text-white mb-4 max-w-2xl">
-          Certainly, Lakshya! Here are customized Question Paper for your CBSE
-          Grade 8 Science classes on the NCERT chapters:
+          Certainly! Here is your customized Question Paper {assignmentMeta?.subject ? `for ${assignmentMeta.subject}` : ""} based on your instructions:
         </p>
 
         {/* Download button */}
@@ -238,20 +240,24 @@ function OutputContent() {
           {/* Paper Header */}
           <div className="text-center mb-4 md:mb-6 pb-2 md:pb-3">
             <h1 className="text-[16px] md:text-[22px] font-bold mb-1">
-              Delhi Public School, Sector-4, Bokaro
+              {assignmentMeta?.schoolName || "Delhi Public School, Sector-4, Bokaro"}
             </h1>
-            <h2 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">
-              Subject: English
-            </h2>
-            <h3 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">
-              Class: 5th
-            </h3>
+            {assignmentMeta?.subject && (
+              <h2 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">
+                Subject: {assignmentMeta.subject}
+              </h2>
+            )}
+            {assignmentMeta?.classLevel && (
+              <h3 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">
+                Class: {assignmentMeta.classLevel}
+              </h3>
+            )}
           </div>
 
           {/* Meta Info */}
           <div className="flex flex-col md:flex-row md:justify-between md:items-center text-[11px] md:text-[13px] mb-3 md:mb-4 font-bold space-y-0.5 md:space-y-0">
-            <div>Time Allowed: 45 minutes</div>
-            <div>Maximum Marks: 20</div>
+            <div>Time Allowed: {assignmentMeta?.timeAllowed || "45 minutes"}</div>
+            <div>Maximum Marks: {assignmentMeta?.totalMarks || 20}</div>
           </div>
 
           <div className="text-[11px] md:text-[13px] font-medium mb-4 md:mb-6 text-[#1A1A1A]">
@@ -269,47 +275,49 @@ function OutputContent() {
               <div className="flex-1 border-b border-[#1A1A1A]"></div>
             </div>
             <div className="flex items-end gap-2">
-              <span className="font-bold shrink-0">Class: 5th Section:</span>
+              <span className="font-bold shrink-0">Class: {assignmentMeta?.classLevel || "5th"} Section:</span>
               <div className="flex-1 border-b border-[#1A1A1A]"></div>
             </div>
           </div>
 
-          {/* Section */}
-          <div className="mb-6 md:mb-8">
-            <h4 className="text-center text-[13px] md:text-[16px] font-bold mb-4 md:mb-5">
-              Section A
-            </h4>
+          {/* Sections */}
+          {sections.map((section: any, sIdx: number) => (
+            <div key={sIdx} className="mb-6 md:mb-8">
+              <h4 className="text-center text-[13px] md:text-[16px] font-bold mb-4 md:mb-5">
+                {section.sectionTitle.includes(":") ? section.sectionTitle.split(":")[0] : section.sectionTitle || `Section ${String.fromCharCode(65 + sIdx)}`}
+              </h4>
 
-            <div className="mb-3 md:mb-4">
-              <h5 className="font-bold text-[12px] md:text-[14px] mb-0.5">
-                Short Answer Questions
-              </h5>
-              <p className="text-[10px] md:text-[12px] italic text-[#6B7280]">
-                Attempt all questions. Each question carries 2 marks
-              </p>
-            </div>
+              <div className="mb-3 md:mb-4">
+                <h5 className="font-bold text-[12px] md:text-[14px] mb-0.5">
+                  {section.sectionTitle.includes(":") ? section.sectionTitle.split(":")[1].trim() : section.sectionTitle}
+                </h5>
+                <p className="text-[10px] md:text-[12px] italic text-[#6B7280]">
+                  {section.instructions}
+                </p>
+              </div>
 
-            <div className="space-y-2.5 md:space-y-3">
-              {questions.map((q: any, idx: number) => (
-                <div
-                  key={q.id}
-                  className="flex gap-2 md:gap-2 text-[11px] md:text-[13px] leading-relaxed"
-                >
-                  <span className="shrink-0">{idx + 1}.</span>
-                  <div className="flex-1">
-                    [{q.difficulty}] {q.text} [{q.marks} Marks]
+              <div className="space-y-2.5 md:space-y-3">
+                {section.questions.map((q: any, qIdx: number) => (
+                  <div
+                    key={q.id}
+                    className="flex gap-2 md:gap-2 text-[11px] md:text-[13px] leading-relaxed"
+                  >
+                    <span className="shrink-0">{qIdx + 1}.</span>
+                    <div className="flex-1">
+                      [{q.difficulty}] {q.text} <span className="font-semibold text-gray-500 float-right">[{q.marks} Marks]</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          ))}
 
           <div className="text-[11px] md:text-[13px] font-bold mt-6 md:mt-8 mb-8 md:mb-10">
             End of Question Paper
           </div>
 
           {/* Answer Key */}
-          <div>
+          <div className="print:break-before-page" style={{ pageBreakBefore: 'always' }}>
             <h4 className="text-[13px] md:text-[16px] font-bold mb-4 md:mb-5">
               Answer Key:
             </h4>
@@ -327,6 +335,28 @@ function OutputContent() {
           </div>
         </div>
       </div>
+
+      {/* Error Modal */}
+      {modalConfig?.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[24px] p-6 md:p-8 w-full max-w-[400px] shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-[18px] md:text-[20px] font-bold text-[#303030] mb-2">
+              {modalConfig.title}
+            </h3>
+            <p className="text-[14px] text-[#5E5E5E] mb-6 leading-relaxed">
+              {modalConfig.message}
+            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setModalConfig(null)}
+                className="bg-[#303030] text-white px-6 py-2 rounded-full font-bold text-[14px] hover:bg-black transition-colors"
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

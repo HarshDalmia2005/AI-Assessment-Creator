@@ -12,6 +12,11 @@ export interface IAssignment extends Document {
   dueDate: string;
   additionalInstructions: string;
   status: "pending" | "generating" | "completed" | "failed";
+  subject?: string;
+  classLevel?: string;
+  timeAllowed?: string;
+  totalMarks?: number;
+  schoolName?: string;
   questionTypes: Array<{
     id: string;
     type: string;
@@ -19,7 +24,12 @@ export interface IAssignment extends Document {
     marks: number;
   }>;
   generatedPaper?: {
-    questions: IQuestion[];
+    title?: string;
+    sections: Array<{
+      sectionTitle: string;
+      instructions: string;
+      questions: IQuestion[];
+    }>;
     answers: string[];
   };
   createdAt: Date;
@@ -36,6 +46,11 @@ const AssignmentSchema: Schema = new Schema(
       enum: ["pending", "generating", "completed", "failed"],
       default: "pending",
     },
+    subject: { type: String },
+    classLevel: { type: String },
+    timeAllowed: { type: String },
+    totalMarks: { type: Number },
+    schoolName: { type: String },
     questionTypes: [
       {
         id: { type: String, required: true },
@@ -45,17 +60,24 @@ const AssignmentSchema: Schema = new Schema(
       },
     ],
     generatedPaper: {
-      questions: [
+      title: { type: String },
+      sections: [
         {
-          id: { type: String, required: true },
-          text: { type: String, required: true },
-          marks: { type: Number, required: true },
-          difficulty: {
-            type: String,
-            enum: ["Easy", "Moderate", "Challenging"],
-            required: true,
-          },
-        },
+          sectionTitle: { type: String },
+          instructions: { type: String },
+          questions: [
+            {
+              id: { type: String, required: true },
+              text: { type: String, required: true },
+              marks: { type: Number, required: true },
+              difficulty: {
+                type: String,
+                enum: ["Easy", "Moderate", "Challenging"],
+                required: true,
+              },
+            },
+          ],
+        }
       ],
       answers: [{ type: String }],
     },

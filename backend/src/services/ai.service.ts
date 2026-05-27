@@ -19,12 +19,18 @@ ${payload.questionTypes.map((qt: any) => `- ${qt.count} questions of type: ${qt.
 Please return the output EXACTLY as a JSON string with the following structure, and nothing else (do not wrap in markdown code blocks like \`\`\`json):
 {
   "title": "A concise, catchy title for this assignment (e.g., 'Science Quiz: Electricity')",
-  "questions": [
+  "sections": [
     {
-      "id": "q1",
-      "text": "Question text here",
-      "marks": 2,
-      "difficulty": "Easy" // can be Easy, Moderate, or Challenging
+      "sectionTitle": "Section A: Multiple Choice Questions",
+      "instructions": "Attempt all questions. Each question carries 1 mark.",
+      "questions": [
+        {
+          "id": "q1",
+          "text": "Question text here",
+          "marks": 1,
+          "difficulty": "Easy" // can be Easy, Moderate, or Challenging
+        }
+      ]
     }
   ],
   "answers": [

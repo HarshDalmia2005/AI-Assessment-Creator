@@ -17,6 +17,7 @@ import { useAssessmentStore } from "@/store/useAssessmentStore";
 
 export default function CreateAssignmentPage() {
   const router = useRouter();
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, title: string, message: string} | null>(null);
   const {
     formData,
     updateFormData,
@@ -37,14 +38,22 @@ export default function CreateAssignmentPage() {
 
   const handleNext = async () => {
     if (!formData.dueDate) {
-      alert("Please select a Due Date.");
+      setModalConfig({
+        isOpen: true,
+        title: "Missing Information",
+        message: "Please select a Due Date before generating the assignment.",
+      });
       return;
     }
     const id = await submitAssignment();
     if (id) {
-      router.push("/assignments/output");
+      router.push("/assignments/output?id=" + id);
     } else {
-      alert("Failed to submit assignment. Please try again.");
+      setModalConfig({
+        isOpen: true,
+        title: "Generation Failed",
+        message: "Failed to submit the assignment to the AI. Please try again.",
+      });
     }
   };
 
@@ -428,6 +437,28 @@ export default function CreateAssignmentPage() {
           </button>
         </div>
       </div>
+
+      {/* Error Modal */}
+      {modalConfig?.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[24px] p-6 md:p-8 w-full max-w-[400px] shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-[18px] md:text-[20px] font-bold text-[#303030] mb-2">
+              {modalConfig.title}
+            </h3>
+            <p className="text-[14px] text-[#5E5E5E] mb-6 leading-relaxed">
+              {modalConfig.message}
+            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setModalConfig(null)}
+                className="bg-[#303030] text-white px-6 py-2 rounded-full font-bold text-[14px] hover:bg-black transition-colors"
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

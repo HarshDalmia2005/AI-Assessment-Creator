@@ -15,6 +15,7 @@ interface AssessmentState {
   assignmentId: string | null;
   status: "pending" | "generating" | "completed" | "failed";
   generatedPaper: any | null;
+  assignmentMeta: any | null;
 
   // Actions
   updateFormData: (data: Partial<AssignmentFormData>) => void;
@@ -52,6 +53,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
   assignmentId: null,
   status: "pending",
   generatedPaper: null,
+  assignmentMeta: null,
 
   updateFormData: (data) =>
     set((state) => ({
@@ -133,6 +135,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
           assignmentId: data.data._id,
           status: data.data.status,
           generatedPaper: data.data.generatedPaper || null,
+          assignmentMeta: data.data,
           isGenerating: data.data.status === "generating",
         });
       }
@@ -150,5 +153,6 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       assignmentId: null,
       status: "pending",
       generatedPaper: null,
+      assignmentMeta: null,
     }),
 }));
