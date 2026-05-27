@@ -51,7 +51,7 @@ export default function RootLayout({
         {/* Right Column */}
         <div className="flex-1 flex flex-col h-full overflow-hidden md:gap-3">
           {/* Header Island */}
-          <div className="bg-white md:bg-white/75 md:rounded-[16px] shrink-0 overflow-hidden">
+          <div className="bg-white md:bg-white/75 md:rounded-[16px] shrink-0 z-50">
             <Header />
           </div>
           {/* Main Content Island */}

@@ -58,7 +58,9 @@ const MOCK_ANSWERS = [
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { io } from "socket.io-client";
+import { toast } from "react-hot-toast";
 import { useAssessmentStore } from "@/store/useAssessmentStore";
+import { useNotificationStore } from "@/store/useNotificationStore";
 
 function OutputContent() {
   const searchParams = useSearchParams();
@@ -87,6 +89,20 @@ function OutputContent() {
 
       socket.on("status_update", (data) => {
         setAssignmentData(assignmentId, data.status, generatedPaper);
+        
+        if (data.status === "completed") {
+          toast.success("Assignment generation completed!");
+          useNotificationStore.getState().addNotification(
+            `Assignment "${assignmentMeta?.subject || 'Paper'} - ${assignmentMeta?.classLevel || ''}" has been generated successfully.`,
+            "success"
+          );
+        } else if (data.status === "failed") {
+          toast.error("Assignment generation failed.");
+          useNotificationStore.getState().addNotification(
+            `Failed to generate assignment "${assignmentMeta?.subject || 'Paper'} - ${assignmentMeta?.classLevel || ''}". Please try again.`,
+            "error"
+          );
+        }
       });
 
       socket.on("generation_complete", () => {
