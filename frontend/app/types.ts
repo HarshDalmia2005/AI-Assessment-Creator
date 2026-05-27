@@ -17,17 +17,17 @@ export interface Assignment {
   totalMarks: number;
   questionTypes: QuestionType[];
   additionalInstructions?: string;
-  fileUpload?: { name: string; url: string; type: 'pdf' | 'text' };
+  fileUpload?: { name: string; url: string; type: "pdf" | "text" };
   schoolInfo: { name: string; sector?: string; city?: string };
   timeAllowed?: string;
-  status?: 'draft' | 'published' | 'generating' | 'completed';
+  status?: "draft" | "published" | "generating" | "completed";
 }
 
 export interface Question {
   id: string;
   text: string;
   marks: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   type: string;
 }
 
@@ -63,4 +63,6 @@ export interface AssignmentFormData {
   additionalInstructions: string;
   file?: File;
   schoolName: string;
+  fileData?: string;
+  fileMimeType?: string;
 }

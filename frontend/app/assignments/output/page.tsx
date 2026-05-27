@@ -1,19 +1,69 @@
-'use client';
+"use client";
 
-import React, { useRef } from 'react';
-import { Download } from 'lucide-react';
+import React, { useRef } from "react";
+import { Download } from "lucide-react";
 
 const MOCK_QUESTIONS = [
-  { id: 1, text: "Define electroplating. Explain its purpose.", marks: 2, difficulty: "Easy" },
-  { id: 2, text: "What is the role of a conductor in the process of electrolysis?", marks: 2, difficulty: "Moderate" },
-  { id: 3, text: "Why does a solution of copper sulfate conduct electricity?", marks: 2, difficulty: "Easy" },
-  { id: 4, text: "Describe one example of the chemical effect of electric current in daily life.", marks: 2, difficulty: "Moderate" },
-  { id: 5, text: "Explain why electric current is said to have chemical effects.", marks: 2, difficulty: "Moderate" },
-  { id: 6, text: "How is sodium hydroxide prepared during the electrolysis of brine? Write the chemical reaction involved.", marks: 2, difficulty: "Challenging" },
-  { id: 7, text: "What happens at the cathode and anode during the electrolysis of water? Name the gases evolved.", marks: 2, difficulty: "Challenging" },
-  { id: 8, text: "Mention the type of current used in electroplating and justify why it is used.", marks: 2, difficulty: "Easy" },
-  { id: 9, text: "What is the importance of electric current in the field of metallurgy?", marks: 2, difficulty: "Moderate" },
-  { id: 10, text: "Explain with a chemical equation how copper is deposited during the electroplating of an object.", marks: 2, difficulty: "Challenging" }
+  {
+    id: 1,
+    text: "Define electroplating. Explain its purpose.",
+    marks: 2,
+    difficulty: "Easy",
+  },
+  {
+    id: 2,
+    text: "What is the role of a conductor in the process of electrolysis?",
+    marks: 2,
+    difficulty: "Moderate",
+  },
+  {
+    id: 3,
+    text: "Why does a solution of copper sulfate conduct electricity?",
+    marks: 2,
+    difficulty: "Easy",
+  },
+  {
+    id: 4,
+    text: "Describe one example of the chemical effect of electric current in daily life.",
+    marks: 2,
+    difficulty: "Moderate",
+  },
+  {
+    id: 5,
+    text: "Explain why electric current is said to have chemical effects.",
+    marks: 2,
+    difficulty: "Moderate",
+  },
+  {
+    id: 6,
+    text: "How is sodium hydroxide prepared during the electrolysis of brine? Write the chemical reaction involved.",
+    marks: 2,
+    difficulty: "Challenging",
+  },
+  {
+    id: 7,
+    text: "What happens at the cathode and anode during the electrolysis of water? Name the gases evolved.",
+    marks: 2,
+    difficulty: "Challenging",
+  },
+  {
+    id: 8,
+    text: "Mention the type of current used in electroplating and justify why it is used.",
+    marks: 2,
+    difficulty: "Easy",
+  },
+  {
+    id: 9,
+    text: "What is the importance of electric current in the field of metallurgy?",
+    marks: 2,
+    difficulty: "Moderate",
+  },
+  {
+    id: 10,
+    text: "Explain with a chemical equation how copper is deposited during the electroplating of an object.",
+    marks: 2,
+    difficulty: "Challenging",
+  },
 ];
 
 const MOCK_ANSWERS = [
@@ -26,34 +76,130 @@ const MOCK_ANSWERS = [
   "At cathode hydrogen gas is evolved, at anode oxygen gas is evolved during electrolysis of water.",
   "Direct current (DC) is used because it provides a steady unidirectional flow needed for consistent metal deposition.",
   "Electric current is used in metallurgy for extracting pure metals from their ores through electrolytic refining.",
-  "Cu²⁺ + 2e⁻ → Cu. Copper ions from the solution gain electrons at the cathode and deposit as pure copper metal."
+  "Cu²⁺ + 2e⁻ → Cu. Copper ions from the solution gain electrons at the cathode and deposit as pure copper metal.",
 ];
 
-export default function OutputPage() {
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { io } from "socket.io-client";
+import { useAssessmentStore } from "@/store/useAssessmentStore";
+
+function OutputContent() {
+  const searchParams = useSearchParams();
+  const urlId = searchParams.get("id");
+  const {
+    assignmentId,
+    status,
+    generatedPaper,
+    fetchAssignment,
+    setAssignmentData,
+  } = useAssessmentStore();
+
+  useEffect(() => {
+    if (urlId && urlId !== assignmentId) {
+      fetchAssignment(urlId);
+    }
+  }, [urlId, assignmentId, fetchAssignment]);
+
+  useEffect(() => {
+    if (assignmentId && (status === "pending" || status === "generating")) {
+      const socket = io("http://localhost:5000");
+
+      socket.emit("join_assignment_room", assignmentId);
+
+      socket.on("status_update", (data) => {
+        setAssignmentData(assignmentId, data.status, generatedPaper);
+      });
+
+      socket.on("generation_complete", () => {
+        fetchAssignment(assignmentId);
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [
+    assignmentId,
+    status,
+    generatedPaper,
+    fetchAssignment,
+    setAssignmentData,
+  ]);
   const paperRef = useRef<HTMLDivElement>(null);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = () => {
     const element = paperRef.current;
     if (!element) return;
 
-    // @ts-ignore
-    const html2pdfModule = await import('html2pdf.js');
-    const html2pdf = html2pdfModule.default || html2pdfModule;
-
-    const opt = {
-      margin: 10,
-      filename: 'Assessment.pdf',
-      image: { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
-    };
-
-    if (typeof html2pdf === 'function') {
-      html2pdf().set(opt).from(element).save();
-    } else {
-      console.error("html2pdf is not a function. Module:", html2pdfModule);
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      alert("Please allow pop-ups to print the PDF.");
+      return;
     }
+
+    // Grab all current stylesheets and style tags so Tailwind works in the new window
+    const styles = Array.from(
+      document.querySelectorAll('style, link[rel="stylesheet"]'),
+    )
+      .map((node) => node.outerHTML)
+      .join("");
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Assessment Paper</title>
+          ${styles}
+          <style>
+            @media print {
+              @page { margin: 15mm; }
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body class="bg-white p-4 md:p-8 font-sans text-black">
+          ${element.innerHTML}
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+
+    // Small delay to allow CSS to apply before printing
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
+
+  if (!assignmentId) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-[#5E5E5E] rounded-none md:rounded-[24px]">
+        <p className="text-white font-medium">No assignment selected.</p>
+      </div>
+    );
+  }
+
+  if (status === "pending" || status === "generating") {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-[#5E5E5E] rounded-none md:rounded-[24px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+        <p className="text-white font-medium text-[16px] md:text-[20px]">
+          {status === "generating"
+            ? "AI is creating your paper..."
+            : "Queuing assignment..."}
+        </p>
+        <p className="text-white/70 text-[12px] md:text-[14px] mt-2 text-center max-w-sm px-6">
+          This usually takes about 10-15 seconds. Please don't refresh the page.
+        </p>
+      </div>
+    );
+  }
+
+  const questions = generatedPaper?.questions || MOCK_QUESTIONS;
+  const answers = generatedPaper?.answers || MOCK_ANSWERS;
 
   return (
     <div className="flex flex-col h-full bg-[#5E5E5E] rounded-none md:rounded-[24px] overflow-y-auto">
@@ -62,13 +208,15 @@ export default function OutputPage() {
         {/* Mobile: bubble card */}
         <div className="md:hidden bg-[#2D2D2D] rounded-[16px] p-3 mb-3">
           <p className="text-[12px] font-medium leading-relaxed text-white/90">
-            Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
+            Certainly, Lakshya! Here are customized Question Paper for your CBSE
+            Grade 8 Science classes on the NCERT chapters:
           </p>
         </div>
 
         {/* Desktop: text directly on background */}
         <p className="hidden md:block text-[14px] font-bold leading-relaxed text-white mb-4 max-w-2xl">
-          Certainly, Lakshya! Here are customized Question Paper for your CBSE Grade 8 Science classes on the NCERT chapters:
+          Certainly, Lakshya! Here are customized Question Paper for your CBSE
+          Grade 8 Science classes on the NCERT chapters:
         </p>
 
         {/* Download button */}
@@ -83,13 +231,21 @@ export default function OutputPage() {
 
       {/* The Paper */}
       <div className="flex-1 mx-2 md:mx-6 mb-2 md:mb-6 bg-white rounded-t-[20px] md:rounded-[32px] shadow-lg">
-        <div ref={paperRef} className="p-5 md:px-16 md:py-12 max-w-3xl mx-auto font-sans text-[#1A1A1A]">
-
+        <div
+          ref={paperRef}
+          className="p-5 md:px-16 md:py-12 max-w-3xl mx-auto font-sans text-[#1A1A1A]"
+        >
           {/* Paper Header */}
           <div className="text-center mb-4 md:mb-6 pb-2 md:pb-3">
-            <h1 className="text-[16px] md:text-[22px] font-bold mb-1">Delhi Public School, Sector-4, Bokaro</h1>
-            <h2 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">Subject: English</h2>
-            <h3 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">Class: 5th</h3>
+            <h1 className="text-[16px] md:text-[22px] font-bold mb-1">
+              Delhi Public School, Sector-4, Bokaro
+            </h1>
+            <h2 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">
+              Subject: English
+            </h2>
+            <h3 className="text-[12px] md:text-[14px] font-medium text-[#6B7280]">
+              Class: 5th
+            </h3>
           </div>
 
           {/* Meta Info */}
@@ -120,16 +276,25 @@ export default function OutputPage() {
 
           {/* Section */}
           <div className="mb-6 md:mb-8">
-            <h4 className="text-center text-[13px] md:text-[16px] font-bold mb-4 md:mb-5">Section A</h4>
+            <h4 className="text-center text-[13px] md:text-[16px] font-bold mb-4 md:mb-5">
+              Section A
+            </h4>
 
             <div className="mb-3 md:mb-4">
-              <h5 className="font-bold text-[12px] md:text-[14px] mb-0.5">Short Answer Questions</h5>
-              <p className="text-[10px] md:text-[12px] italic text-[#6B7280]">Attempt all questions. Each question carries 2 marks</p>
+              <h5 className="font-bold text-[12px] md:text-[14px] mb-0.5">
+                Short Answer Questions
+              </h5>
+              <p className="text-[10px] md:text-[12px] italic text-[#6B7280]">
+                Attempt all questions. Each question carries 2 marks
+              </p>
             </div>
 
             <div className="space-y-2.5 md:space-y-3">
-              {MOCK_QUESTIONS.map((q, idx) => (
-                <div key={q.id} className="flex gap-2 md:gap-2 text-[11px] md:text-[13px] leading-relaxed">
+              {questions.map((q: any, idx: number) => (
+                <div
+                  key={q.id}
+                  className="flex gap-2 md:gap-2 text-[11px] md:text-[13px] leading-relaxed"
+                >
                   <span className="shrink-0">{idx + 1}.</span>
                   <div className="flex-1">
                     [{q.difficulty}] {q.text} [{q.marks} Marks]
@@ -145,19 +310,37 @@ export default function OutputPage() {
 
           {/* Answer Key */}
           <div>
-            <h4 className="text-[13px] md:text-[16px] font-bold mb-4 md:mb-5">Answer Key:</h4>
+            <h4 className="text-[13px] md:text-[16px] font-bold mb-4 md:mb-5">
+              Answer Key:
+            </h4>
             <div className="space-y-3 md:space-y-4">
-              {MOCK_ANSWERS.map((answer, idx) => (
-                <div key={idx} className="flex gap-2 text-[10px] md:text-[12px] leading-relaxed">
+              {answers.map((answer: string, idx: number) => (
+                <div
+                  key={idx}
+                  className="flex gap-2 text-[10px] md:text-[12px] leading-relaxed"
+                >
                   <span className="shrink-0">{idx + 1}.</span>
                   <p className="flex-1">{answer}</p>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OutputPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center h-full bg-[#5E5E5E] rounded-none md:rounded-[24px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+        </div>
+      }
+    >
+      <OutputContent />
+    </Suspense>
   );
 }

@@ -1,17 +1,17 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IQuestion {
   id: string;
   text: string;
   marks: number;
-  difficulty: 'Easy' | 'Moderate' | 'Challenging';
+  difficulty: "Easy" | "Moderate" | "Challenging";
 }
 
 export interface IAssignment extends Document {
   title: string;
   dueDate: string;
   additionalInstructions: string;
-  status: 'pending' | 'generating' | 'completed' | 'failed';
+  status: "pending" | "generating" | "completed" | "failed";
   questionTypes: Array<{
     id: string;
     type: string;
@@ -28,13 +28,13 @@ export interface IAssignment extends Document {
 
 const AssignmentSchema: Schema = new Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String, default: '' },
     dueDate: { type: String, required: true },
-    additionalInstructions: { type: String, default: '' },
-    status: { 
-      type: String, 
-      enum: ['pending', 'generating', 'completed', 'failed'], 
-      default: 'pending' 
+    additionalInstructions: { type: String, default: "" },
+    status: {
+      type: String,
+      enum: ["pending", "generating", "completed", "failed"],
+      default: "pending",
     },
     questionTypes: [
       {
@@ -42,7 +42,7 @@ const AssignmentSchema: Schema = new Schema(
         type: { type: String, required: true },
         count: { type: Number, required: true },
         marks: { type: Number, required: true },
-      }
+      },
     ],
     generatedPaper: {
       questions: [
@@ -50,13 +50,17 @@ const AssignmentSchema: Schema = new Schema(
           id: { type: String, required: true },
           text: { type: String, required: true },
           marks: { type: Number, required: true },
-          difficulty: { type: String, enum: ['Easy', 'Moderate', 'Challenging'], required: true },
-        }
+          difficulty: {
+            type: String,
+            enum: ["Easy", "Moderate", "Challenging"],
+            required: true,
+          },
+        },
       ],
-      answers: [{ type: String }]
-    }
+      answers: [{ type: String }],
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.model<IAssignment>('Assignment', AssignmentSchema);
+export default mongoose.model<IAssignment>("Assignment", AssignmentSchema);

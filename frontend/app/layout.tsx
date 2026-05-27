@@ -38,7 +38,10 @@ export default function RootLayout({
       className={`${bricolage.variable} ${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
       </head>
       <body className="h-screen flex bg-[#F0F0F0] text-gray-900 overflow-hidden p-0 md:p-3 md:gap-3 font-sans">
         {/* Sidebar Island - hidden on mobile */}

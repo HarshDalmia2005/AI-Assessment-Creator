@@ -1,31 +1,93 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Plus, Search, Filter, MoreVertical } from 'lucide-react';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Link from "next/link";
+import { Plus, Search, Filter, MoreVertical } from "lucide-react";
+import Image from "next/image";
 
 const dummyAssignments = [
-  { id: 1, title: 'Quiz on Electricity', assignedOn: '20-06-2025', dueDate: '21-06-2025' },
-  { id: 2, title: 'Quiz on Electricity', assignedOn: '20-06-2025', dueDate: '21-06-2025' },
-  { id: 3, title: 'Quiz on Electricity', assignedOn: '20-06-2025', dueDate: '21-06-2025' },
-  { id: 4, title: 'Quiz on Electricity', assignedOn: '20-06-2025', dueDate: '21-06-2025' },
-  { id: 5, title: 'Quiz on Electricity', assignedOn: '20-06-2025', dueDate: '21-06-2025' },
-  { id: 6, title: 'Quiz on Electricity', assignedOn: '20-06-2025', dueDate: '21-06-2025' },
+  {
+    id: 1,
+    title: "Quiz on Electricity",
+    assignedOn: "20-06-2025",
+    dueDate: "21-06-2025",
+  },
+  {
+    id: 2,
+    title: "Quiz on Electricity",
+    assignedOn: "20-06-2025",
+    dueDate: "21-06-2025",
+  },
+  {
+    id: 3,
+    title: "Quiz on Electricity",
+    assignedOn: "20-06-2025",
+    dueDate: "21-06-2025",
+  },
+  {
+    id: 4,
+    title: "Quiz on Electricity",
+    assignedOn: "20-06-2025",
+    dueDate: "21-06-2025",
+  },
+  {
+    id: 5,
+    title: "Quiz on Electricity",
+    assignedOn: "20-06-2025",
+    dueDate: "21-06-2025",
+  },
+  {
+    id: 6,
+    title: "Quiz on Electricity",
+    assignedOn: "20-06-2025",
+    dueDate: "21-06-2025",
+  },
 ];
 
 export default function AssignmentsPage() {
-  const [openDropdown, setOpenDropdown] = useState<number | null>(0);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    fetch("http://localhost:5000/api/assignments")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setAssignments(data.data);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="flex flex-col h-full rounded-none md:rounded-[24px] overflow-hidden relative">
-      {dummyAssignments.length === 0 ? (
+      {loading ? (
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A1A1A] mb-4"></div>
+          <p className="text-[#303030] font-medium">Loading assignments...</p>
+        </div>
+      ) : assignments.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6 md:px-4">
-          <Image src={"/Illustrations.png"} alt="" width={300} height={300} className="w-[220px] md:w-[300px] h-auto" />
+          <Image
+            src={"/Illustrations.png"}
+            alt=""
+            width={300}
+            height={300}
+            className="w-[220px] md:w-[300px] h-auto"
+          />
 
-          <h3 className="text-[18px] md:text-[20px] font-bold text-[#1A1A1A] mb-2 mt-4">No assignments yet</h3>
+          <h3 className="text-[18px] md:text-[20px] font-bold text-[#1A1A1A] mb-2 mt-4">
+            No assignments yet
+          </h3>
           <p className="text-[#6B7280] text-[14px] md:text-[16px] mb-8 leading-relaxed max-w-[380px]">
-            Create your first assignment to start collecting and grading student submissions. You can set up rubrics, define marking criteria, and let AI assist with grading.
+            Create your first assignment to start collecting and grading student
+            submissions. You can set up rubrics, define marking criteria, and
+            let AI assist with grading.
           </p>
           <Link
             href="/assignments/create"
@@ -49,7 +111,9 @@ export default function AssignmentsPage() {
             {/* Header Section - mobile: shows "Assignments" title with back arrow */}
             <div className="md:hidden mb-4">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-[18px] font-bold text-[#1A1A1A] font-bricolage">Assignments</h1>
+                <h1 className="text-[18px] font-bold text-[#1A1A1A] font-bricolage">
+                  Assignments
+                </h1>
               </div>
             </div>
 
@@ -57,8 +121,12 @@ export default function AssignmentsPage() {
             <div className="hidden md:flex items-center gap-4 mb-8">
               <div className="w-[12px] h-[12px] rounded-full bg-[#4BC26D] ring-4 ring-[#22C55E]/20"></div>
               <div>
-                <h1 className="text-[20px] font-bold text-[#1A1A1A] font-bricolage leading-none mb-1">Assignments</h1>
-                <p className="text-[#5E5E5E]/55 text-[14px]">Manage and create assignments for your classes</p>
+                <h1 className="text-[20px] font-bold text-[#1A1A1A] font-bricolage leading-none mb-1">
+                  Assignments
+                </h1>
+                <p className="text-[#5E5E5E]/55 text-[14px]">
+                  Manage and create assignments for your classes
+                </p>
               </div>
             </div>
 
@@ -69,7 +137,10 @@ export default function AssignmentsPage() {
                 <span className="text-[12px] md:text-[14px]">Filter</span>
               </div>
               <div className="relative flex-1 md:flex-none md:w-[400px]">
-                <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#A9A9A9]" size={16} />
+                <Search
+                  className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-[#A9A9A9]"
+                  size={16}
+                />
                 <input
                   type="text"
                   placeholder="Search Name"
@@ -80,24 +151,51 @@ export default function AssignmentsPage() {
 
             {/* Assignments - single column on mobile, 2 cols on desktop */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-              {dummyAssignments.map(assignment => (
-                <div key={assignment.id} className="bg-white rounded-[16px] md:rounded-[32px] p-4 md:p-8 relative shadow-sm">
+              {assignments.map((assignment) => (
+                <div
+                  key={assignment._id}
+                  className="bg-white rounded-[16px] md:rounded-[32px] p-4 md:p-8 relative shadow-sm"
+                >
                   <div className="flex justify-between items-start mb-4 md:mb-16">
                     <h3 className="font-bold text-[#303030] text-[16px] md:text-[24px] font-bricolage">
-                      <span className="decoration-2 underline-offset-4">Quiz</span> on Electricity
+                      {assignment.title}
                     </h3>
-                    <button
-                      onClick={() => setOpenDropdown(openDropdown === assignment.id ? null : assignment.id)}
-                      className="text-[#A9A9A9] hover:text-[#303030] p-1 md:p-2 rounded-full hover:bg-[#F3F4F6] transition-colors"
-                    >
-                      <MoreVertical size={20} className="md:w-6 md:h-6" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[12px] font-bold px-2 py-1 rounded-md ${
+                          assignment.status === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : assignment.status === "generating"
+                              ? "bg-blue-100 text-blue-700"
+                              : assignment.status === "failed"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {assignment.status}
+                      </span>
+                      <button
+                        onClick={() =>
+                          setOpenDropdown(
+                            openDropdown === assignment._id
+                              ? null
+                              : assignment._id,
+                          )
+                        }
+                        className="text-[#A9A9A9] hover:text-[#303030] p-1 md:p-2 rounded-full hover:bg-[#F3F4F6] transition-colors"
+                      >
+                        <MoreVertical size={20} className="md:w-6 md:h-6" />
+                      </button>
+                    </div>
 
-                    {openDropdown === assignment.id && (
+                    {openDropdown === assignment._id && (
                       <div className="absolute right-4 md:right-8 top-12 md:top-16 bg-white rounded-[12px] md:rounded-[16px] shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-[#F3F4F6] p-1.5 md:p-2 z-10 w-[160px] md:w-[180px]">
-                        <button className="w-full text-left px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1A1A1A] hover:bg-[#F9FAFB] rounded-[8px] md:rounded-[10px] mb-0.5">
+                        <Link
+                          href={`/assignments/output?id=${assignment._id}`}
+                          className="block w-full text-left px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#1A1A1A] hover:bg-[#F9FAFB] rounded-[8px] md:rounded-[10px] mb-0.5"
+                        >
                           View Assignment
-                        </button>
+                        </Link>
                         <button className="w-full text-left px-3 md:px-4 py-2 md:py-2.5 text-[13px] md:text-[14px] font-medium text-[#EF4444] hover:bg-[#FEF2F2] rounded-[8px] md:rounded-[10px]">
                           Delete
                         </button>
@@ -107,12 +205,20 @@ export default function AssignmentsPage() {
 
                   <div className="flex items-center justify-between text-[12px] md:text-[16px]">
                     <div>
-                      <span className="font-bold text-[#303030]">Assigned on : </span>
-                      <span className="text-[#000000]/50">{assignment.assignedOn}</span>
+                      <span className="font-bold text-[#303030]">
+                        Assigned on :{" "}
+                      </span>
+                      <span className="text-[#000000]/50">
+                        {new Date(assignment.createdAt)
+                          .toLocaleDateString("en-GB")
+                          .replace(/\//g, "-")}
+                      </span>
                     </div>
                     <div>
                       <span className="font-bold text-[#303030]">Due : </span>
-                      <span className="text-[#000000]/50">{assignment.dueDate}</span>
+                      <span className="text-[#000000]/50">
+                        {assignment.dueDate}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -124,8 +230,10 @@ export default function AssignmentsPage() {
           <div
             className="absolute bottom-0 left-0 right-0 h-[80px] md:h-[100px] pointer-events-none z-10 bg-linear-to-b from-transparent to-[#DADADA]/50 backdrop-blur-xl"
             style={{
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)',
-              maskImage: 'linear-gradient(to bottom, transparent 0%, black 100%)'
+              WebkitMaskImage:
+                "linear-gradient(to bottom, transparent 0%, black 100%)",
+              maskImage:
+                "linear-gradient(to bottom, transparent 0%, black 100%)",
             }}
           ></div>
 

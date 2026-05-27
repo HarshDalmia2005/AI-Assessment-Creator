@@ -1,22 +1,22 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { Bell, ArrowLeft, ChevronDown, LayoutGrid, Menu } from 'lucide-react';
-import Image from 'next/image';
+import React from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { Bell, ArrowLeft, ChevronDown, LayoutGrid, Menu } from "lucide-react";
+import Image from "next/image";
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
   let title = "Assignment";
-  if (pathname.includes('/create')) {
+  if (pathname.includes("/create")) {
     title = "Assignment";
-  } else if (pathname.includes('/output')) {
+  } else if (pathname.includes("/output")) {
     title = "Assignment";
   }
 
-  const showBackButton = pathname !== '/';
+  const showBackButton = pathname !== "/";
 
   return (
     <header className="h-[60px] px-4 md:px-6 flex items-center justify-between shrink-0 z-10 w-full">
@@ -32,7 +32,9 @@ export function Header() {
         )}
         <div className="flex items-center gap-2">
           <LayoutGrid size={20} className="text-[#9CA3AF]" strokeWidth={2} />
-          <h1 className="text-[16px] font-medium text-[#A9A9A9] font-bricolage align-middle">{title}</h1>
+          <h1 className="text-[16px] font-medium text-[#A9A9A9] font-bricolage align-middle">
+            {title}
+          </h1>
         </div>
       </div>
 
@@ -41,7 +43,9 @@ export function Header() {
         <div className="rounded-full flex items-center justify-center">
           <Image src="/logo 2 copy.png" alt="Logo" width={36} height={36} />
         </div>
-        <span className="font-bold text-[20px] tracking-[-0.04em] text-[#303030]">VedaAI</span>
+        <span className="font-bold text-[20px] tracking-[-0.04em] text-[#303030]">
+          VedaAI
+        </span>
       </div>
 
       <div className="flex items-center gap-3 md:gap-5">
@@ -57,8 +61,14 @@ export function Header() {
             <Image src="/P.jpg" alt="" width={32} height={32} />
           </div>
           {/* Name only on desktop */}
-          <span className="hidden md:inline text-[16px] font-bricolage font-medium text-[#303030]">John Doe</span>
-          <ChevronDown size={20} className="hidden md:block text-[#303030]" strokeWidth={2} />
+          <span className="hidden md:inline text-[16px] font-bricolage font-medium text-[#303030]">
+            John Doe
+          </span>
+          <ChevronDown
+            size={20}
+            className="hidden md:block text-[#303030]"
+            strokeWidth={2}
+          />
         </div>
 
         {/* Hamburger menu - mobile only */}
