@@ -16,10 +16,12 @@ const app = express();
 const server = http.createServer(app);
 
 // Setup Socket.io
+const FRONTEND_URL = process.env.FRONTEND_URL || "*";
+
 const io = new Server(server, {
   cors: {
-    origin: "*", // For development. Update to actual frontend URL in production
-    methods: ["GET", "POST"],
+    origin: FRONTEND_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
 
@@ -27,7 +29,7 @@ const io = new Server(server, {
 setSocketIoInstance(io);
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: FRONTEND_URL }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
