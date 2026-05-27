@@ -107,7 +107,8 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     const { formData } = get();
     try {
       set({ isGenerating: true, status: "pending" });
-      const res = await fetch("http://localhost:5000/api/assignments", {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+      const res = await fetch(`${backendUrl}/api/assignments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -128,7 +129,8 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
 
   fetchAssignment: async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/assignments/${id}`);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+      const res = await fetch(`${backendUrl}/api/assignments/${id}`);
       const data = await res.json();
       if (data.success && data.data) {
         set({

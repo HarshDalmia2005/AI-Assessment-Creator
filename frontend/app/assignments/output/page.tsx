@@ -83,7 +83,8 @@ function OutputContent() {
 
   useEffect(() => {
     if (assignmentId && (status === "pending" || status === "generating")) {
-      const socket = io("http://localhost:5000");
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+      const socket = io(backendUrl);
 
       socket.emit("join_assignment_room", assignmentId);
 

@@ -22,7 +22,8 @@ export default function AssignmentsPage() {
   } | null>(null);
 
   React.useEffect(() => {
-    fetch("http://localhost:5000/api/assignments")
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+    fetch(`${backendUrl}/api/assignments`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
@@ -43,7 +44,8 @@ export default function AssignmentsPage() {
       message: "Are you sure you want to delete this assignment? This action cannot be undone.",
       onConfirm: async () => {
         try {
-          const res = await fetch(`http://localhost:5000/api/assignments/${id}`, {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+          const res = await fetch(`${backendUrl}/api/assignments/${id}`, {
             method: "DELETE",
           });
           const data = await res.json();
